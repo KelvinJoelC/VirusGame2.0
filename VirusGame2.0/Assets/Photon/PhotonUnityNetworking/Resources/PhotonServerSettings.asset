@@ -36,5 +36,12 @@ MonoBehaviour:
   - barajarCartas
   - inicializarRPC
   - robaCarta_click
+  - repartirCartasInicio
+  - RPC_inicializar
+  - RPC_getCarta
+  - RPC_robaCarta
+  - RPC_seleccionarCarta_click
+  - RPC_barajarCarta
+  - RPC_actualizarBaraja
   DisableAutoOpenWizard: 1
   ShowSettings: 1

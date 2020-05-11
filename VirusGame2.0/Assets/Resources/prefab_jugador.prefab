@@ -73,3 +73,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf94132f23b91a74ba3596fdb6d5fdd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cartasMano: 

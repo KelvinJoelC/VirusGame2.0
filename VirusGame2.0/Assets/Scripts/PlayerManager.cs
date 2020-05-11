@@ -5,6 +5,7 @@ using TMPro;  //Nesario para añadir las letras
 using UnityEngine.UI;
 using Photon.Realtime;
 using Photon.Pun;
+using Photon.Pun.UtilityScripts;
 
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
@@ -13,19 +14,31 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
 
     private PhotonView pv;
-
+    private List<Card> mano;
+    private GameObject barajaGO;
+    private GameObject miManoUI;
+    private GameObject prefab_jugador;
+    private GameObject prefab_organo;
+    public string cartasMano;
+    
     void Start()
     {
 
         string metodo = "StatPlayer";
         Debug.Log(metodo + "INICIO");
         pv = GetComponent<PhotonView>();
+        mano = new List<Card>();
+        barajaGO = GameObject.FindGameObjectWithTag("Baraja");
 
 
-        if (photonView.IsMine)
+         prefab_jugador = Resources.Load("prefab_jugador_inGame") as GameObject;
+         prefab_organo = Resources.Load("prefab_jugador_organo") as GameObject;
+
+        if (pv.IsMine)
         {
+            
             GameObject contenedorJugadores = GameObject.FindGameObjectWithTag("Contenedor");
-            GameObject prefab_jugador = Resources.Load("prefab_jugador_inGame") as GameObject;
+            miManoUI = GameObject.FindGameObjectWithTag("miManoCont");
             playerList = PhotonNetwork.CurrentRoom.Players;
 
 
@@ -35,54 +48,91 @@ public class PlayerManager : MonoBehaviourPunCallbacks
                 listaJugadoresGO.transform.SetParent(contenedorJugadores.transform);
                 listaJugadoresGO.transform.localScale = Vector3.one;
                 listaJugadoresGO.transform.Find("txt_nombreJugador").GetComponent<Text>().text = jugador.NickName;
+                listaJugadoresGO.tag="Jug:"+jugador.ActorNumber;
+
             }
         }
+
+        //GameObject.FindGameObjectWithTag("BotonPrueba").GetComponent<Button>().onClick.AddListener(() => robaCarta_click());  // PRUEBA
         Debug.Log(metodo + "FIN");
 
     }
-
-
-
-    #region Métodos privados
-
-    void SetPlayerUI(GameObject instanciaPlayerUI)
+     void Update()
     {
-        Transform pnl_infJugador = instanciaPlayerUI.transform.Find("pnl_infJugador").GetComponent<Transform>();
-        pnl_infJugador.transform.Find("txt_nombreJugadorActual").GetComponent<Text>().text = " " + photonView.Owner.NickName;
-        Transform pnl_muestraRonda = instanciaPlayerUI.transform.Find("pnl_muestraRonda").GetComponent<Transform>();
-        pnl_muestraRonda.transform.gameObject.SetActive(false);
 
-        Transform pnl_descartar = instanciaPlayerUI.transform.Find("pnl_descartar").GetComponent<Transform>();
-        //pnl_descartar.transform.Find("btn_descartarCartas").GetComponent<Button>().onClick.AddListener(() => pv.RPC("robaCarta_click", RpcTarget.AllViaServer));
+        
+    }
+
+    #region Métodos RPC
+    [PunRPC]
+    void RPC_robaCarta()
+    {
+        Card cartaRecibida = barajaGO.GetComponent<DeckManager>().getCarta();
+        mano.Add(cartaRecibida);
+
+        GameObject organoInstancia = Instantiate(prefab_organo);
+        if (pv.IsMine) {
+            organoInstancia.transform.SetParent(miManoUI.transform);
+        }
+        
+        organoInstancia.transform.localScale = Vector3.one;
+        organoInstancia.SetActive(true);
+        organoInstancia.GetComponent<Button>().enabled=true;
+        organoInstancia.transform.Find("Text").GetComponent<Text>().text = cartaRecibida.tipo +" "+ cartaRecibida.color +" "+cartaRecibida.efecto;
+        organoInstancia.transform.GetComponent<Button>().onClick.AddListener(() => seleccionarCarta_click(cartaRecibida));
 
     }
 
     #endregion
 
-    // Update is called once per frame
-    /*void FixedUpdate () {
-        if (photonView.IsMine)
+    #region Métodos privados
+    private void robaCarta_click()
+    {
+        if (pv.IsMine && miManoUI.transform.childCount<=2)
         {
-            pv.RPC("robaCarta_click",RpcTarget.AllViaServer);
-        }
-		
-	}*/
+            pv.RPC("RPC_robaCarta", RpcTarget.AllBuffered);
+            
 
-    [PunRPC]
-    public void robaCarta_click()
-    { /*
-        GO_baraja = GameObject.FindWithTag("Baraja");
-        deckManager = (DeckManager)GO_baraja.GetComponent(typeof(DeckManager));
-        manoJugador.Add(deckManager.robaCarta());
-        Debug.Log("COMIENZAAAAAAAA");
-        foreach (Card carta in manoJugador)
-        {
-            Debug.Log("Juegador tiene carta: " + carta.tipo + " : " + carta.color);
         }
-        */
-
-        Transform jugadorUI = transform.Find("JugadorUI").GetComponent<Transform>();
-        Transform canvas_UI = jugadorUI.transform.Find("Canvas").GetComponent<Transform>();
-        canvas_UI.transform.Find("txt_nombreJugador").GetComponent<TextMeshProUGUI>().text = "3";
     }
+
+    private void seleccionarCarta_click(Card cartaSeleccionada)
+    {
+        
+            if (cartaSeleccionada.tipo== "Organo")
+            {
+                Debug.Log(cartaSeleccionada.tipo + "FIN");
+                if (pv.IsMine)
+                {
+                    
+                }else
+                {
+
+                GameObject jugadorRealizador = GameObject.FindGameObjectWithTag("Jug:" + PhotonNetwork.LocalPlayer.ActorNumber);
+                
+                GameObject organoInstancia = Instantiate(prefab_organo);
+                organoInstancia.transform.SetParent(jugadorRealizador.transform.Find("pnl_organos").transform);
+                organoInstancia.transform.localScale = Vector3.one;
+                organoInstancia.transform.Find("Text").GetComponent<Text>().text = cartaSeleccionada.tipo + " " + cartaSeleccionada.color + " " + cartaSeleccionada.efecto;
+                }
+            }
+            if (cartaSeleccionada.tipo== "Virus")
+            {
+                Debug.Log(cartaSeleccionada.tipo + "FIN");
+            }
+            if (cartaSeleccionada.tipo == "Medicina")
+            {
+                Debug.Log(cartaSeleccionada.tipo + "FIN");
+            }
+            if (cartaSeleccionada.tipo == "Efecto")
+            {
+                Debug.Log(cartaSeleccionada.tipo + "FIN");
+            }
+            
+    }
+
+
+
+    #endregion
+
 }

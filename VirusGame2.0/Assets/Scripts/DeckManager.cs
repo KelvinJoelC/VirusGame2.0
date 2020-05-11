@@ -13,43 +13,41 @@ namespace Photon.Pun.UtilityScripts
 {
     public class DeckManager : MonoBehaviourPunCallbacks
     {
+        string clase = "DeckManager :";
 
         [Header("Mazos")]
-        public GameObject mazoPricipal;
-        public GameObject mazoDescartes;
+        private List<Card> mazoPricipal;
+        private List<Card> mazoDescartes;
 
-        [Header("Manos")]
-        public GameObject prefab_cartaJuego;
+        [Header("Ultimas cartas")]
+        public String cartaTopside;
+        public String cartaDescartada;
 
 
-        private List<Card> listaCartas;
-        private PhotonView pv;
-        private List<PhotonView> listPV;
+        private PhotonView pv;  //PhotonView de deck
 
-        // Use this for initialization
-        // RECIBE LLAMADA DEL GESTOR DE TURNOS
-        private void Awake()
-        {
-
-        }
 
         void Start()
         {
+            string metodo = "Start";
+            Debug.Log(metodo + " : INICIO");
             pv = GetComponent<PhotonView>();
-            listPV = new List<PhotonView>();
             
-            //pv.RPC("inicializarRPC", RpcTarget.AllViaServer);
             //Creo cartas y barajo
-            listaCartas = Utiles.generaCartasCompleto();
-            Debug.Log("Contador cartas -Creadas " + listaCartas.Count);
-            listaCartas = barajarCartas();
-            Debug.Log("Contador cartas barajado " + listaCartas.Count);
-            GameObject[] contenedorJugadores = GameObject.FindGameObjectsWithTag("Player");
-            foreach (GameObject jugador in contenedorJugadores)
-            {
-                listPV.Add(jugador.GetComponent<PhotonView>());
-            }
+            pv.RPC("RPC_inicializar", RpcTarget.AllBuffered); 
             
+        }
+        void Update()
+        {
+            cartaTopside = mazoPricipal[0].tipo + " " + mazoPricipal[0].color;
+            if(mazoDescartes==null)
+            {
+                cartaDescartada = null;
+            }
+            else
+            {
+                cartaDescartada = mazoDescartes[mazoDescartes.Count - 1].tipo + " " + mazoDescartes[mazoDescartes.Count - 1].color;
+            }
             
         }
 
@@ -61,20 +59,20 @@ namespace Photon.Pun.UtilityScripts
 
             List<Card> auxiliarList = new List<Card>();
             int i = 0;
-            while (listaCartas.Count != 0)
+            while (mazoPricipal.Count != 0)
             {
 
-                if (listaCartas.Count != 1)
+                if (mazoPricipal.Count != 1)
                 {
-                    int nRandom = UnityEngine.Random.Range(0, listaCartas.Count - 1);
-                    auxiliarList.Add(listaCartas[nRandom]);
-                    listaCartas.Remove(listaCartas[nRandom]);
+                    int nRandom = UnityEngine.Random.Range(0, mazoPricipal.Count - 1);
+                    auxiliarList.Add(mazoPricipal[nRandom]);
+                    mazoPricipal.Remove(mazoPricipal[nRandom]);
                     i++;
                 }
                 else
                 {
-                    auxiliarList.Add(listaCartas[0]);
-                    listaCartas.Remove(listaCartas[0]);
+                    auxiliarList.Add(mazoPricipal[0]);
+                    mazoPricipal.Remove(mazoPricipal[0]);
                 }
 
 
@@ -91,73 +89,44 @@ namespace Photon.Pun.UtilityScripts
         #endregion
 
         #region Métodos RPC 
+
         [PunRPC]
-        void repartirCartasInicio()
+        void RPC_inicializar()
         {
-            listaCartas = Utiles.generaCartasCompleto();//Ordenadas
-            Debug.Log("Contador cartas " + listaCartas.Count);
-            listaCartas = barajarCartas();
+            Debug.Log("RPC_inicializar :INICIO");
+
+            mazoPricipal = Utiles.generaCartasCompleto();
+            Debug.Log("Contador cartas -Creadas " + mazoPricipal.Count);
+            mazoPricipal = barajarCartas();
+            Debug.Log("Contador cartas barajado " + mazoPricipal.Count);
+            Debug.Log("RPC_inicializar: FIN");
         }
+
+        [PunRPC]
+        void RPC_getCarta()
+        {
+            Debug.Log("RPC_getCarta :INICIO");
+
+            mazoPricipal.Remove(mazoPricipal[0]);
+
+            Debug.Log("RPC_getCarta: FIN");
+        }
+
 
         #endregion
 
-        /* Update is called once per frame
-        void Update()
-        {
-            pv.RPC("actualizarDatos", RpcTarget.AllViaServer);
+
+
+        #region Métodos publicos
+
+        public Card getCarta() {
+
+            Card cartaObtenida = mazoPricipal[0];
+            pv.RPC("RPC_getCarta", RpcTarget.AllBuffered);
+            return cartaObtenida;
+
         }
+        #endregion
 
-        [PunRPC]
-        void inicializarRPC()
-        {
-            listaCartas = Utiles.generaCartasCompleto();//Ordenadas
-            Debug.Log("Contador cartas " + listaCartas.Count);
-            listaCartas = barajarCartas();
-        }
-
-
-        [PunRPC]
-        List<Card> barajarCartas()
-        {
-            //int[] numeros = new int[25];
-
-            List<Card> auxiliarList = new List<Card>();
-            int i = 0;
-            while (listaCartas.Count != 0)
-            {
-
-                if (listaCartas.Count != 1)
-                {
-                    int nRandom = 1;//Random.Range(0, listaCartas.Count - 1);
-                    auxiliarList.Add(listaCartas[nRandom]);
-                    listaCartas.Remove(listaCartas[nRandom]);
-                    i++;
-                }
-                else
-                {
-                    auxiliarList.Add(listaCartas[0]);
-                    listaCartas.Remove(listaCartas[0]);
-                }
-
-
-            }
-
-            foreach (Card carta in auxiliarList)
-            {
-                Debug.Log("BARAJA CARTAS : " + JsonUtility.ToJson(carta, true));
-            }
-            Debug.Log("BARAJA CARTAS Nº: " + auxiliarList.Count);
-            return auxiliarList;
-        }
-
-        public void robaCarta(PhotonView pvSolicitante)
-        {
-            //Se elimina la carta que hemos escrito por si se roba de nuevo, nos salga la siguiente
-            Debug.Log("robaCarta : inicio : " + JsonUtility.ToJson(listaCartas, true));
-            Card cartaObtenida = listaCartas[0];
-            listaCartas.Remove(listaCartas[0]);
-            Debug.Log("robaCarta : FIN : Quedan:" + listaCartas.Count + JsonUtility.ToJson(cartaObtenida, true));
-        }
-        */
     }
 }

@@ -25,6 +25,7 @@ public class Utiles : MonoBehaviour {
 
     public static List<Card> generaCartasCompleto()
     {
+        
         List<Card> listaCartas = new List<Card>();
         #region Organos
         foreach (Card carta in generaCartas("Organo", "Rojo", 5))
@@ -63,10 +64,7 @@ public class Utiles : MonoBehaviour {
         {
             listaCartas.Add(carta);
         }
-        foreach (Card carta in generaCartas("Medicina", "Multicolor", 4))
-        {
-            listaCartas.Add(carta);
-        }
+        listaCartas.Add(new Card("Medicina", "Multicolor"));
         #endregion
 
         #region Virus

@@ -19,8 +19,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4675688233843394}
+  - component: {fileID: 114455215326563798}
+  - component: {fileID: 114228530854326534}
   - component: {fileID: 114046879743782842}
-  - component: {fileID: 114892097631836770}
   m_Layer: 0
   m_Name: prefab_deckManager
   m_TagString: Baraja
@@ -62,7 +63,7 @@ MonoBehaviour:
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &114892097631836770
+--- !u!114 &114228530854326534
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -70,9 +71,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1211359408897188}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dafc8cb6de3c77143b5b979dbfba1a41, type: 3}
+  m_Script: {fileID: 11500000, guid: db6e996f165c14b41b77978b4f05e47a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mazoPricipal: {fileID: 0}
-  mazoDescartes: {fileID: 0}
-  prefab_cartaJuego: {fileID: 0}
+  mazoPrincipal: []
+  mazoDescartes: []
+  mazoP: []
+  mazoD: []
+--- !u!114 &114455215326563798
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211359408897188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c33bafc20958db439657ce12ea9073b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

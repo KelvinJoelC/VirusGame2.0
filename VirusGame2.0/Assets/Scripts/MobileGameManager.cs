@@ -20,6 +20,7 @@ public class MobileGameManager : MonoBehaviour {
 
     [Header("Instancia visual del jugador")]
     public GameObject prefab_jugador;
+    public GameObject prefab_deckManager;
 
     void Start () {
         Debug.Log("Start");
@@ -34,12 +35,12 @@ public class MobileGameManager : MonoBehaviour {
         {
             if (prefab_jugador != null )
             {
-                PhotonNetwork.CurrentRoom.SetTurn(0, false);
+                
                 GameObject instanciaPlayerUI = PhotonNetwork.Instantiate(prefab_jugador.name, Vector3.one, Quaternion.Euler(0, 0, 0));
-                GameObject instanciaDeckManager = PhotonNetwork.Instantiate(prefab_jugador.name, Vector3.one, Quaternion.Euler(0, 0, 0));
+                
                 
                 //Se reparten las cartas
-                PhotonView pvPlayer = instanciaPlayerUI.GetComponent<PhotonView>();
+
                 //pvPlayer.RPC();
 
 

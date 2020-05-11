@@ -6,6 +6,17 @@ TagManager:
   tags:
   - Contenedor
   - Baraja
+  - BotonPrueba
+  - OrganosEnMano
+  - miManoCont
+  - CartaVisible
+  - Jug:1
+  - Jug:2
+  - Jug:3
+  - Jug:4
+  - Jug:0
+  - jug:5
+  - TextoPrueba
   layers:
   - Default
   - TransparentFX
